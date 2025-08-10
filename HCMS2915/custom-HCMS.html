@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCMS-2915 Pixel Pattern Designer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .display-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow-x: auto;
+        }
+
+        .display-grid {
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            border: 4px solid #636e72;
+            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.7);
+            gap: 2px;
+        }
+
+        .display-row {
+            display: flex;
+            gap: 2px;
+            height: 18px;
+            align-items: center;
+        }
+
+        .character-block {
+            display: flex;
+            gap: 1px;
+            background: rgba(50, 50, 50, 0.5);
+            padding: 2px;
+            border-radius: 3px;
+            border: 1px solid #404040;
+        }
+
+        .character-block:not(:last-child) {
+            margin-right: 8px;
+        }
+
+        .pixel {
+            width: 16px;
+            height: 16px;
+            background: #2d3436;
+            border: 1px solid #505050;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pixel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .pixel:hover {
+            border-color: #74b9ff;
+            transform: scale(1.1);
+        }
+
+        .pixel.on::before {
+            background: linear-gradient(45deg, #ff3838, #ff6b6b);
+            box-shadow: 0 0 12px #ff6b6b, 0 0 6px #ff3838;
+            width: 14px;
+            height: 14px;
+        }
+
+        .pixel.on {
+            border-color: #ff6b6b;
+        }
+
+        .pixel.row-0 {
+            background: #0f0f0f !important;
+            cursor: not-allowed;
+            opacity: 0.2;
+            border-color: #2a2a2a;
+        }
+
+        .pixel.row-0::before {
+            background: #0a0a0a !important;
+        }
+
+        .character-separator {
+            grid-column: span 1;
+            background: #636e72;
+            margin: 0 2px;
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-panel h3 {
+            color: #ffd93d;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .pixel-count {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #74b9ff;
+        }
+
+        .code-output {
+            background: #2d3436;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #636e72;
+        }
+
+        .code-output h3 {
+            color: #00b894;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .code-text {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00cec9;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            border: 1px solid #636e72;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .character-labels {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 68px;
+        }
+
+        .char-label {
+            font-weight: bold;
+            color: #ffd93d;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .pixel {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .pixel::before {
+                width: 8px;
+                height: 8px;
+            }
+            
+            .pixel.on::before {
+                width: 11px;
+                height: 11px;
+            }
+            
+            .display-grid {
+                gap: 1px;
+                padding: 15px;
+            }
+            
+            .character-block:not(:last-child) {
+                margin-right: 6px;
+            }
+            
+            .character-labels {
+                gap: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 HCMS-2915 Pixel Designer 🔥</h1>
+        
+        <div class="info-panel">
+            <h3>📊 Display Information</h3>
+            <div>Total Pixels: <span class="pixel-count">320</span> | Active Pixels: <span id="activeCount">0</span></div>
+            <div style="margin-top: 10px;">
+                <strong>Instructions:</strong> Click pixels to turn them on/off. Row 0 (bottom) is unused in hardware. 
+                Design your pattern and click "Generate Code" to get Arduino code!
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="clearAll()">Clear All</button>
+            <button class="btn btn-secondary" onclick="fillAll()">Fill All</button>
+            <button class="btn btn-success" onclick="generateCode()">Generate Code</button>
+            <button class="btn btn-secondary" onclick="invertPattern()">Invert</button>
+        </div>
+
+        <div class="character-labels">
+            <span class="char-label">Char 0</span>
+            <span class="char-label">Char 1</span>
+            <span class="char-label">Char 2</span>
+            <span class="char-label">Char 3</span>
+            <span class="char-label">Char 4</span>
+            <span class="char-label">Char 5</span>
+            <span class="char-label">Char 6</span>
+            <span class="char-label">Char 7</span>
+        </div>
+
+        <div class="display-container">
+            <div class="display-grid" id="displayGrid">
+                <!-- Pixels will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="code-output" id="codeOutput" style="display: none;">
+            <h3>🚀 Generated Arduino Code</h3>
+            <div class="code-text" id="codeText"></div>
+            <button class="btn btn-success" onclick="copyCode()" style="margin-top: 15px;">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        let pixelStates = new Array(320).fill(false);
+        
+        function initializeGrid() {
+            const grid = document.getElementById('displayGrid');
+            
+            // Create 8 rows (row 7 at top, row 0 at bottom)
+            for (let row = 7; row >= 0; row--) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'display-row';
+                
+                // Create 8 character blocks, each with 5 columns
+                for (let charIndex = 0; charIndex < 8; charIndex++) {
+                    const charBlock = document.createElement('div');
+                    charBlock.className = 'character-block';
+                    
+                    // Create 5 pixels for this character
+                    for (let col = 0; col < 5; col++) {
+                        const pixel = document.createElement('div');
+                        pixel.className = 'pixel';
+                        
+                        // Calculate the correct pixel index for the data array
+                        // Data is stored as: char0_col0_row0, char0_col0_row1, ..., char0_col0_row7, char0_col1_row0, etc.
+                        const pixelIndex = charIndex * 40 + col * 8 + row;
+                        
+                        // Row 0 is unused in hardware
+                        if (row === 0) {
+                            pixel.classList.add('row-0');
+                        }
+                        
+                        pixel.dataset.index = pixelIndex;
+                        pixel.addEventListener('click', () => togglePixel(pixelIndex, pixel));
+                        charBlock.appendChild(pixel);
+                    }
+                    
+                    rowDiv.appendChild(charBlock);
+                }
+                
+                grid.appendChild(rowDiv);
+            }
+        }
+        
+        function togglePixel(index, element) {
+            // Don't allow toggling row 0 pixels
+            if (index % 8 === 0) return;
+            
+            pixelStates[index] = !pixelStates[index];
+            
+            if (pixelStates[index]) {
+                element.classList.add('on');
+            } else {
+                element.classList.remove('on');
+            }
+            
+            updatePixelCount();
+        }
+        
+        function updatePixelCount() {
+            const activeCount = pixelStates.filter(state => state).length;
+            document.getElementById('activeCount').textContent = activeCount;
+        }
+        
+        function clearAll() {
+            pixelStates.fill(false);
+            document.querySelectorAll('.pixel').forEach(pixel => {
+                pixel.classList.remove('on');
+            });
+            updatePixelCount();
+        }
+        
+        function fillAll() {
+            for (let i = 0; i < 320; i++) {
+                // Skip row 0 pixels
+                if (i % 8 !== 0) {
+                    pixelStates[i] = true;
+                }
+            }
+            
+            document.querySelectorAll('.pixel').forEach((pixel, index) => {
+                if (index % 8 !== 0) {
+                    pixel.classList.add('on');
+                }
+            });
+            updatePixelCount();
+        }
+        
+        function invertPattern() {
+            for (let i = 0; i < 320; i++) {
+                // Skip row 0 pixels
+                if (i % 8 !== 0) {
+                    pixelStates[i] = !pixelStates[i];
+                }
+            }
+            
+            document.querySelectorAll('.pixel').forEach((pixel, index) => {
+                if (index % 8 !== 0) {
+                    if (pixelStates[index]) {
+                        pixel.classList.add('on');
+                    } else {
+                        pixel.classList.remove('on');
+                    }
+                }
+            });
+            updatePixelCount();
+        }
+        
+        function generateCode() {
+            const codeTemplate = `/*
+ * Custom Pattern for HCMS-2915 Display
+ * Generated by HCMS-2915 Pixel Designer
+ * Total Active Pixels: ${pixelStates.filter(state => state).length}
+ */
+
+// Pin definitions for ESP32 C3 SUPERMINI
+#define DATA_IN_PIN 4  // DATA IN
+#define CLOCK_PIN 5    // CLOCK
+#define CE_PIN 6       // CHIP ENABLE (active low)
+#define RS_PIN 7       // REGISTER SELECT
+#define RESET_PIN 8    // RESET (active low)
+#define BLANK_PIN 9    // BLANK
+
+// Display constants
+#define CHARS_PER_DISPLAY 8
+#define DOTS_PER_CHAR 40
+#define TOTAL_DOTS (CHARS_PER_DISPLAY * DOTS_PER_CHAR)  // 320 bits total
+
+// Control register constants
+#define CONTROL_WORD_0 0x00  // Select Control Word 0 (MSB = 0)
+#define CONTROL_WORD_1 0x80  // Select Control Word 1 (MSB = 1)
+#define BRIGHTNESS_100 0x4F  // 100% brightness
+
+// Custom pattern data
+uint8_t customPattern[TOTAL_DOTS] = {
+${generatePatternArray()}
+};
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Initialize pins
+  pinMode(DATA_IN_PIN, OUTPUT);
+  pinMode(CLOCK_PIN, OUTPUT);
+  pinMode(CE_PIN, OUTPUT);
+  pinMode(RS_PIN, OUTPUT);
+  pinMode(RESET_PIN, OUTPUT);
+  pinMode(BLANK_PIN, OUTPUT);
+
+  // Set initial states
+  digitalWrite(DATA_IN_PIN, LOW);
+  digitalWrite(CLOCK_PIN, LOW);
+  digitalWrite(CE_PIN, HIGH);     // Disabled initially
+  digitalWrite(RS_PIN, LOW);      // Select Dot Register
+  digitalWrite(RESET_PIN, HIGH);  // Normal operation
+  digitalWrite(BLANK_PIN, LOW);   // Display enabled
+
+  // Initialize the display
+  initDisplay();
+  
+  // Display custom pattern
+  displayCustomPattern();
+  
+  Serial.println("Custom pattern displayed on HCMS-2915!");
+}
+
+void loop() {
+  // Pattern is static, nothing to do in loop
+  // You can add brightness control or other effects here
+}
+
+void initDisplay() {
+  // Reset the display
+  digitalWrite(RESET_PIN, LOW);
+  delay(10);
+  digitalWrite(RESET_PIN, HIGH);
+  delay(10);
+
+  // Clear the display
+  clearDisplay();
+
+  // Set brightness to 100%
+  setBrightness();
+
+  // Configure Control Word 1 for serial mode
+  writeControlRegister(CONTROL_WORD_1 | 0x00);
+}
+
+void writeControlRegister(uint8_t controlWord) {
+  digitalWrite(RS_PIN, HIGH);  // Select Control Register
+  digitalWrite(CE_PIN, LOW);   // Enable chip
+
+  // Send 8 bits MSB first
+  for (int i = 7; i >= 0; i--) {
+    digitalWrite(DATA_IN_PIN, (controlWord >> i) & 1);
+    digitalWrite(CLOCK_PIN, HIGH);
+    delayMicroseconds(1);
+    digitalWrite(CLOCK_PIN, LOW);
+    delayMicroseconds(1);
+  }
+
+  digitalWrite(CE_PIN, HIGH);  // Latch data
+  delayMicroseconds(1);
+  digitalWrite(CLOCK_PIN, LOW);
+  digitalWrite(RS_PIN, LOW);  // Back to Dot Register
+}
+
+void writeDotRegister(uint8_t* data, int length) {
+  digitalWrite(RS_PIN, LOW);  // Select Dot Register
+  digitalWrite(CE_PIN, LOW);  // Enable chip
+
+  for (int i = length - 1; i >= 0; i--) {
+    digitalWrite(DATA_IN_PIN, data[i]);
+    digitalWrite(CLOCK_PIN, HIGH);
+    delayMicroseconds(1);
+    digitalWrite(CLOCK_PIN, LOW);
+    delayMicroseconds(1);
+  }
+
+  digitalWrite(CE_PIN, HIGH);  // Latch data
+  delayMicroseconds(1);
+  digitalWrite(CLOCK_PIN, LOW);
+}
+
+void setBrightness() {
+  writeControlRegister(BRIGHTNESS_100);
+}
+
+void clearDisplay() {
+  uint8_t dotData[TOTAL_DOTS];
+  memset(dotData, 0, TOTAL_DOTS);
+  writeDotRegister(dotData, TOTAL_DOTS);
+}
+
+void displayCustomPattern() {
+  writeDotRegister(customPattern, TOTAL_DOTS);
+}`;
+
+            document.getElementById('codeText').textContent = codeTemplate;
+            document.getElementById('codeOutput').style.display = 'block';
+            document.getElementById('codeOutput').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function generatePatternArray() {
+            let arrayString = '  ';
+            for (let i = 0; i < 320; i++) {
+                arrayString += (pixelStates[i] ? '1' : '0');
+                if (i < 319) {
+                    arrayString += ', ';
+                    if ((i + 1) % 20 === 0) {
+                        arrayString += '\n  ';
+                    }
+                }
+            }
+            return arrayString;
+        }
+        
+        function copyCode() {
+            const codeText = document.getElementById('codeText').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = 'linear-gradient(45deg, #00b894, #00a085)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = 'linear-gradient(45deg, #00b894, #00a085)';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy code. Please select and copy manually.');
+            });
+        }
+        
+        // Initialize the grid when page loads
+        document.addEventListener('DOMContentLoaded', initializeGrid);
+    </script>
+</body>
+</html>
