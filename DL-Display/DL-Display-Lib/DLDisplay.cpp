@@ -1,11 +1,11 @@
-#include "DL3416.h"
+#include "DLDisplay.h"
 
-DL3416::DL3416(int clr, int addr0, int addr1, int wr, int bl, int d0, int d1, int d2,
-               int d3, int d4, int d5, int d6)
+DLDisplay::DLDisplay(int clr, int addr0, int addr1, int wr, int bl, int d0, int d1, int d2,
+                     int d3, int d4, int d5, int d6)
     : clr(clr), addr0(addr0), addr1(addr1), wr(wr), bl(bl),
       d0(d0), d1(d1), d2(d2), d3(d3), d4(d4), d5(d5), d6(d6) {}
 
-void DL3416::begin()
+void DLDisplay::begin()
 {
     pinMode(this->clr, OUTPUT);
     pinMode(this->addr0, OUTPUT);
@@ -25,7 +25,7 @@ void DL3416::begin()
     digitalWrite(this->wr, HIGH);
 }
 
-byte DL3416::asciiToDL3416(char c)
+byte DLDisplay::asciiToDL(char c)
 {
     if (c >= ' ' && c <= '_')
     {
@@ -34,7 +34,7 @@ byte DL3416::asciiToDL3416(char c)
     return 0x20; // Space character
 }
 
-void DL3416::selectAddr(byte segment)
+void DLDisplay::selectAddr(byte segment)
 {
     switch (segment)
     {
@@ -57,7 +57,7 @@ void DL3416::selectAddr(byte segment)
     }
 }
 
-void DL3416::setDataPins(byte data)
+void DLDisplay::setDataPins(byte data)
 {
     digitalWrite(this->d0, data & 0x01);
     digitalWrite(this->d1, data & 0x02);
@@ -68,15 +68,15 @@ void DL3416::setDataPins(byte data)
     digitalWrite(this->d6, data & 0x40);
 }
 
-void DL3416::displayChar(char c)
+void DLDisplay::displayChar(char c)
 {
-    byte data = this->asciiToDL3416(c);
+    byte data = this->asciiToDL(c);
     setDataPins(data);
     digitalWrite(this->wr, LOW);
     digitalWrite(this->wr, HIGH);
 }
 
-void DL3416::displayText(const char message[4])
+void DLDisplay::displayText(const char message[4])
 {
     for (int i = 0; i < 4; i++)
     {
@@ -85,14 +85,14 @@ void DL3416::displayText(const char message[4])
     }
 }
 
-void DL3416::clear()
+void DLDisplay::clear()
 {
     digitalWrite(this->clr, LOW);
     delay(15);
     digitalWrite(this->clr, HIGH);
 }
 
-void DL3416::blink(int blinkDelay)
+void DLDisplay::blink(int blinkDelay)
 {
     delay(blinkDelay);
     digitalWrite(this->bl, LOW);
@@ -100,7 +100,7 @@ void DL3416::blink(int blinkDelay)
     digitalWrite(this->bl, HIGH);
 }
 
-void DL3416::scrollText(char message[], int scrollSpeed)
+void DLDisplay::scrollText(const char message[], int scrollDelay)
 {
     int length = strlen(message);
     for (int i = 0; i < length; i++)
@@ -115,6 +115,21 @@ void DL3416::scrollText(char message[], int scrollSpeed)
                 this->displayChar(message[charIndex]);
             }
         }
-        delay(scrollSpeed);
+        delay(scrollDelay);
     }
+}
+
+void DLDisplay::fullTest()
+{
+    // Test all printable ASCII characters from space (32) to underscore (95)
+    // Display each character repeated 4 times (e.g., "AAAA", "BBBB", etc.)
+    
+    for (char c = ' '; c <= '_'; c++)
+    {
+        char testPattern[5] = {c, c, c, c, '\0'};
+        this->clear();
+        this->displayText(testPattern);
+        delay(500);
+    }
+    this->clear();
 }
