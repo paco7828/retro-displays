@@ -81,6 +81,11 @@
             color: white;
         }
 
+        .btn-info {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+        }
+
         .display-container {
             display: flex;
             justify-content: center;
@@ -228,9 +233,9 @@
 
         .character-labels {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             margin-bottom: 10px;
-            gap: 68px;
+            padding: 0 42px;
         }
 
         .char-label {
@@ -238,6 +243,14 @@
             color: #ffd93d;
             font-size: 14px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            width: 68px;
+            text-align: center;
+        }
+
+        .copy-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         @media (max-width: 768px) {
@@ -274,7 +287,11 @@
             }
             
             .character-labels {
-                gap: 50px;
+                padding: 0 32px;
+            }
+            
+            .char-label {
+                width: 50px;
             }
         }
     </style>
@@ -319,7 +336,10 @@
         <div class="code-output" id="codeOutput" style="display: none;">
             <h3>🚀 Generated Arduino Code</h3>
             <div class="code-text" id="codeText"></div>
-            <button class="btn btn-success" onclick="copyCode()" style="margin-top: 15px;">📋 Copy to Clipboard</button>
+            <div class="copy-buttons">
+                <button class="btn btn-success" onclick="copyCode()">📋 Copy Full Code</button>
+                <button class="btn btn-info" onclick="copyPixelsOnly()">🎯 Copy Pixels Only</button>
+            </div>
         </div>
     </div>
 
@@ -329,7 +349,7 @@
         function initializeGrid() {
             const grid = document.getElementById('displayGrid');
             
-            // Create 8 rows (row 7 at top, row 0 at bottom)
+            // Create 8 rows (row 7 at top, row 0 at bottom - CORRECTED ORDER)
             for (let row = 7; row >= 0; row--) {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'display-row';
@@ -345,15 +365,15 @@
                         pixel.className = 'pixel';
                         
                         // Calculate the correct pixel index for the data array
-                        // Data is stored as: char0_col0_row0, char0_col0_row1, ..., char0_col0_row7, char0_col1_row0, etc.
                         const pixelIndex = charIndex * 40 + col * 8 + row;
                         
-                        // Row 0 is unused in hardware
+                        // Row 0 is unused in hardware (bottom row visually)
                         if (row === 0) {
                             pixel.classList.add('row-0');
                         }
                         
                         pixel.dataset.index = pixelIndex;
+                        pixel.dataset.row = row;
                         pixel.addEventListener('click', () => togglePixel(pixelIndex, pixel));
                         charBlock.appendChild(pixel);
                     }
@@ -366,8 +386,9 @@
         }
         
         function togglePixel(index, element) {
-            // Don't allow toggling row 0 pixels
-            if (index % 8 === 0) return;
+            // Don't allow toggling row 0 pixels (bottom row)
+            const row = parseInt(element.dataset.row);
+            if (row === 0) return;
             
             pixelStates[index] = !pixelStates[index];
             
@@ -394,15 +415,17 @@
         }
         
         function fillAll() {
+            // Fill all pixels except row 0 (280 pixels total: 8 chars × 5 cols × 7 rows)
             for (let i = 0; i < 320; i++) {
-                // Skip row 0 pixels
-                if (i % 8 !== 0) {
+                const row = i % 8;
+                if (row !== 0) {  // Skip row 0 pixels
                     pixelStates[i] = true;
                 }
             }
             
-            document.querySelectorAll('.pixel').forEach((pixel, index) => {
-                if (index % 8 !== 0) {
+            document.querySelectorAll('.pixel').forEach(pixel => {
+                const row = parseInt(pixel.dataset.row);
+                if (row !== 0) {
                     pixel.classList.add('on');
                 }
             });
@@ -410,15 +433,18 @@
         }
         
         function invertPattern() {
+            // Invert all pixels except row 0
             for (let i = 0; i < 320; i++) {
-                // Skip row 0 pixels
-                if (i % 8 !== 0) {
+                const row = i % 8;
+                if (row !== 0) {  // Skip row 0 pixels
                     pixelStates[i] = !pixelStates[i];
                 }
             }
             
-            document.querySelectorAll('.pixel').forEach((pixel, index) => {
-                if (index % 8 !== 0) {
+            document.querySelectorAll('.pixel').forEach(pixel => {
+                const row = parseInt(pixel.dataset.row);
+                if (row !== 0) {
+                    const index = parseInt(pixel.dataset.index);
                     if (pixelStates[index]) {
                         pixel.classList.add('on');
                     } else {
@@ -580,19 +606,81 @@ void displayCustomPattern() {
         
         function copyCode() {
             const codeText = document.getElementById('codeText').textContent;
-            navigator.clipboard.writeText(codeText).then(() => {
-                const button = event.target;
-                const originalText = button.textContent;
-                button.textContent = '✅ Copied!';
+            copyToClipboard(codeText, event.target, '✅ Full Code Copied!');
+        }
+        
+        function copyPixelsOnly() {
+            const pixelsArray = `uint8_t customPattern[TOTAL_DOTS] = {
+${generatePatternArray()}
+};`;
+            copyToClipboard(pixelsArray, event.target, '✅ Pixels Copied!');
+        }
+        
+        function copyToClipboard(text, button, successMessage) {
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(button, successMessage);
+                }).catch(() => {
+                    fallbackCopyToClipboard(text, button, successMessage);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopyToClipboard(text, button, successMessage);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text, button, successMessage) {
+            // Create a temporary textarea element
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess(button, successMessage);
+                } else {
+                    showCopyError(button);
+                }
+            } catch (err) {
+                showCopyError(button);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+        
+        function showCopySuccess(button, message) {
+            const originalText = button.textContent;
+            const originalBg = button.style.background;
+            
+            button.textContent = message;
+            button.style.background = 'linear-gradient(45deg, #00b894, #00a085)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = originalBg;
+            }, 2000);
+        }
+        
+        function showCopyError(button) {
+            const originalText = button.textContent;
+            
+            button.textContent = '❌ Copy Failed';
+            button.style.background = 'linear-gradient(45deg, #d63031, #e17055)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
                 button.style.background = 'linear-gradient(45deg, #00b894, #00a085)';
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.background = 'linear-gradient(45deg, #00b894, #00a085)';
-                }, 2000);
-            }).catch(err => {
-                alert('Failed to copy code. Please select and copy manually.');
-            });
+            }, 2000);
+            
+            // Also show an alert with instructions
+            alert('Copy failed. Please select the code manually and copy with Ctrl+C (or Cmd+C on Mac).');
         }
         
         // Initialize the grid when page loads
