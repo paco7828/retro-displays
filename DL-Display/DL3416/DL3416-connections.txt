@@ -1,0 +1,23 @@
+DL3416 -> MCU:
+1 CE1 -> 5V
+2 CE2 -> 5V
+3 CE3# -> GND
+4 CE4# -> GND
+5 CLR#-> IO2
+6 VCC-> 5V
+7 A0 -> IO3
+8 A1 -> IO4
+9 WR# -> IO5
+10 CU# -> NC
+11 CUE -> NC
+12 GND -> GND
+13 NC -> NC
+14 BL -> IO6
+15 NC -> NC
+16 D0 -> IO7
+17 D1 -> IO8
+18 D2 -> IO9
+19 D3 -> IO10
+20 D4 -> IO11
+21 D5 -> IO12
+22 D6 -> IO13
