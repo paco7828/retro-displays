@@ -1,189 +1,298 @@
-/*
- * HDLX-2416 Four Character 5x7 Smart Alphanumeric Display Test Code
- * 
- * This code demonstrates all major features of the HDLX-2416 display:
- * - Character display
- * - Brightness control
- * - Blanking
- * - Clear function
- * - Scrolling text
- * - Character set demonstration
- * 
- * Connections (based on provided connection file):
- * HDLX-2416 Pin -> Arduino Pin
- * 1  CE1#  -> GND (always enabled)
- * 2  CE2#  -> GND (always enabled) 
- * 3  CLR#  -> IO0  (Digital Pin 0)
- * 4  CUE   -> NC   (Not connected - cursor disabled)
- * 5  CU#   -> NC   (Not connected - always ASCII mode)
- * 6  WR#   -> IO1  (Digital Pin 1)
- * 7  A1    -> IO3  (Digital Pin 3)
- * 8  A0    -> IO2  (Digital Pin 2)
- * 9  VCC   -> 5V
- * 10 GND   -> GND
- * 11 D0    -> IO4  (Digital Pin 4)
- * 12 D1    -> IO5  (Digital Pin 5)
- * 13 D2    -> IO6  (Digital Pin 6)
- * 14 D3    -> IO7  (Digital Pin 7)
- * 15 D6    -> IO8  (Digital Pin 8)
- * 16 D5    -> IO9  (Digital Pin 9)
- * 17 D4    -> IO10 (Digital Pin 10)
- * 18 BL#   -> IO20 (Digital Pin 20 - or use different pin if needed)
- */
-
 // Pin definitions
-#define CLR_PIN 0
-#define WR_PIN 1
-#define A0_PIN 3
-#define A1_PIN 2
-#define D0_PIN 4
-#define D1_PIN 5
-#define D2_PIN 6
-#define D3_PIN 7
-#define D6_PIN 8
-#define D5_PIN 9
-#define D4_PIN 10
-#define BL_PIN 20  // Adjust if pin 20 not available on your board
+#define CLR 0
+#define WR 1
+#define A0 3
+#define A1 4
+#define D0 5
+#define D1 6
+#define D2 7
+#define D3 8
+#define D4 9
+#define D5 10
+#define D6 20
 
-// Address definitions for 4-character positions
+// Address definitions for 4-character positions (single display)
 #define CHAR_POS_0 0  // Rightmost character
 #define CHAR_POS_1 1
 #define CHAR_POS_2 2
 #define CHAR_POS_3 3  // Leftmost character
 
-// Control register address (when CU = 0)
-#define CONTROL_REG 0
+// Character mapping structure
+struct CharMapping {
+  uint8_t ascii_code;
+  uint8_t hdlx_code;
+  const char* description;
+};
+
+// Complete character mapping array
+const CharMapping char_map[] = {
+  // Special characters (Row 0)
+  { 0xEC, 0x00, "ì" },
+  { 0x18, 0x01, "arrow up" },
+  { 0x1A, 0x02, "arrow right" },
+  { 0x19, 0x03, "arrow bottom" },
+  { 0x1B, 0x04, "arrow left" },
+  { 0xA8, 0x05, "¿" },
+  { 0xE0, 0x06, "à" },
+  { 0xD8, 0x07, "Ø" },
+  { 0xF8, 0x08, "ø" },
+  { 0xF2, 0x09, "ò" },
+  { 0xF9, 0x0A, "ù" },
+  { 0xF1, 0x0B, "ñ" },
+  { 0xE7, 0x0C, "ç" },
+  { 0xEA, 0x0D, "ê" },
+  { 0xC9, 0x0E, "É" },
+  { 0xE9, 0x0F, "é" },
+
+  // More special characters (Row 1)
+  { 0xE8, 0x10, "è" },
+  { 0xC6, 0x11, "Æ" },
+  { 0xE6, 0x12, "æ" },
+  { 0xC0, 0x13, "Ȧ" },
+  { 0xE0, 0x14, "ȧ" },
+  { 0xC4, 0x15, "Ä" },
+  { 0xE4, 0x16, "ä" },
+  { 0xD6, 0x17, "Ö" },
+  { 0xF6, 0x18, "ö" },
+  { 0xDC, 0x19, "Ü" },
+  { 0xFC, 0x1A, "ü" },
+  { 0xB0, 0x1B, "°C" },
+  { 0xB0, 0x1C, "°F" },
+  { 0xDF, 0x1D, "ß" },
+  { 0xA3, 0x1E, "£" },
+  { 0xA5, 0x1F, "¥" },
+
+  // Standard ASCII printable characters (Row 2-3)
+  { ' ', 0x20, "space" },
+  { '!', 0x21, "!" },
+  { '"', 0x22, "\"" },
+  { '#', 0x23, "#" },
+  { '$', 0x24, "$" },
+  { '%', 0x25, "%" },
+  { '&', 0x26, "&" },
+  { '\'', 0x27, "'" },
+  { '(', 0x28, "(" },
+  { ')', 0x29, ")" },
+  { '*', 0x2A, "*" },
+  { '+', 0x2B, "+" },
+  { ',', 0x2C, "," },
+  { '-', 0x2D, "-" },
+  { '.', 0x2E, "." },
+  { '/', 0x2F, "/" },
+
+  // Numbers 0-9
+  { '0', 0x30, "0" },
+  { '1', 0x31, "1" },
+  { '2', 0x32, "2" },
+  { '3', 0x33, "3" },
+  { '4', 0x34, "4" },
+  { '5', 0x35, "5" },
+  { '6', 0x36, "6" },
+  { '7', 0x37, "7" },
+  { '8', 0x38, "8" },
+  { '9', 0x39, "9" },
+  { ':', 0x3A, ":" },
+  { ';', 0x3B, ";" },
+  { '<', 0x3C, "<" },
+  { '=', 0x3D, "=" },
+  { '>', 0x3E, ">" },
+  { '?', 0x3F, "?" },
+
+  // Uppercase letters A-Z (Row 4-5)
+  { '@', 0x40, "@" },
+  { 'A', 0x41, "A" },
+  { 'B', 0x42, "B" },
+  { 'C', 0x43, "C" },
+  { 'D', 0x44, "D" },
+  { 'E', 0x45, "E" },
+  { 'F', 0x46, "F" },
+  { 'G', 0x47, "G" },
+  { 'H', 0x48, "H" },
+  { 'I', 0x49, "I" },
+  { 'J', 0x4A, "J" },
+  { 'K', 0x4B, "K" },
+  { 'L', 0x4C, "L" },
+  { 'M', 0x4D, "M" },
+  { 'N', 0x4E, "N" },
+  { 'O', 0x4F, "O" },
+  { 'P', 0x50, "P" },
+  { 'Q', 0x51, "Q" },
+  { 'R', 0x52, "R" },
+  { 'S', 0x53, "S" },
+  { 'T', 0x54, "T" },
+  { 'U', 0x55, "U" },
+  { 'V', 0x56, "V" },
+  { 'W', 0x57, "W" },
+  { 'X', 0x58, "X" },
+  { 'Y', 0x59, "Y" },
+  { 'Z', 0x5A, "Z" },
+  { '[', 0x5B, "[" },
+  { '\\', 0x5C, "\\" },
+  { ']', 0x5D, "]" },
+  { '^', 0x5E, "^" },
+  { '_', 0x5F, "_" },
+
+  // Lowercase letters a-z (Row 6-7)
+  { '`', 0x60, "`" },
+  { 'a', 0x61, "a" },
+  { 'b', 0x62, "b" },
+  { 'c', 0x63, "c" },
+  { 'd', 0x64, "d" },
+  { 'e', 0x65, "e" },
+  { 'f', 0x66, "f" },
+  { 'g', 0x67, "g" },
+  { 'h', 0x68, "h" },
+  { 'i', 0x69, "i" },
+  { 'j', 0x6A, "j" },
+  { 'k', 0x6B, "k" },
+  { 'l', 0x6C, "l" },
+  { 'm', 0x6D, "m" },
+  { 'n', 0x6E, "n" },
+  { 'o', 0x6F, "o" },
+  { 'p', 0x70, "p" },
+  { 'q', 0x71, "q" },
+  { 'r', 0x72, "r" },
+  { 's', 0x73, "s" },
+  { 't', 0x74, "t" },
+  { 'u', 0x75, "u" },
+  { 'v', 0x76, "v" },
+  { 'w', 0x77, "w" },
+  { 'x', 0x78, "x" },
+  { 'y', 0x79, "y" },
+  { 'z', 0x7A, "z" },
+  { '{', 0x7B, "{" },
+  { '|', 0x7C, "tall :" },
+  { '}', 0x7D, "}" },
+  { '~', 0x7E, "~" },
+  { 0xDB, 0x7F, "grid" }
+};
+
+const int CHAR_MAP_SIZE = sizeof(char_map) / sizeof(char_map[0]);
+
+void displayTemperature(int temp, bool celsius = true);
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("HDLX-2416 Display Test Starting...");
 
   // Initialize all pins as outputs
-  pinMode(CLR_PIN, OUTPUT);
-  pinMode(WR_PIN, OUTPUT);
-  pinMode(A0_PIN, OUTPUT);
-  pinMode(A1_PIN, OUTPUT);
-  pinMode(D0_PIN, OUTPUT);
-  pinMode(D1_PIN, OUTPUT);
-  pinMode(D2_PIN, OUTPUT);
-  pinMode(D3_PIN, OUTPUT);
-  pinMode(D4_PIN, OUTPUT);
-  pinMode(D5_PIN, OUTPUT);
-  pinMode(D6_PIN, OUTPUT);
-  pinMode(BL_PIN, OUTPUT);
+  pinMode(CLR, OUTPUT);
+  pinMode(WR, OUTPUT);
+  pinMode(A0, OUTPUT);
+  pinMode(A1, OUTPUT);
+  pinMode(D0, OUTPUT);
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
+  pinMode(D3, OUTPUT);
+  pinMode(D4, OUTPUT);
+  pinMode(D5, OUTPUT);
+  pinMode(D6, OUTPUT);
 
   // Set initial states
-  digitalWrite(WR_PIN, HIGH);   // Write disabled
-  digitalWrite(CLR_PIN, HIGH);  // Clear disabled
-  digitalWrite(BL_PIN, HIGH);   // Display enabled (not blanked)
+  digitalWrite(WR, HIGH);   // Write disabled
+  digitalWrite(CLR, HIGH);  // Clear disabled
 
   // Clear display on startup
   clearDisplay();
   delay(500);
 
-  Serial.println("Display initialized!");
+  Serial.println("HDLX-2416 Single Display Driver");
+  Serial.println("Now supports proper character mapping!");
+  Serial.println("Test with: displayText(\"Hi!\");");
 }
 
 void loop() {
-  // Test sequence
-  Serial.println("Starting test sequence...");
-
-  // Test 1: Basic character display
-  Serial.println("Test 1: Basic Characters");
-  displayText("TEST");
+  // Example usage - you can modify this
+  displayText("Hi! ");
   delay(2000);
 
-  // Test 2: Numbers
-  Serial.println("Test 2: Numbers");
-  displayText("1234");
+  displayTemperature(25, true);  // 25.5°C
   delay(2000);
 
-  // Test 3: Mixed characters
-  Serial.println("Test 3: Mixed Characters");
-  displayText("A1B2");
+  displayText("$5  ");
   delay(2000);
 
-  // Test 4: Special characters
-  Serial.println("Test 4: Special Characters");
-  displayText("!@#$");
-  delay(2000);
-
-  // Test 5: Brightness control demonstration
-  Serial.println("Test 5: Brightness Control");
-  displayText("BRIT");
-  for (int level = 0; level <= 7; level++) {
-    setBrightness(level);
-    Serial.print("Brightness level: ");
-    Serial.println(level);
-    delay(1000);
-  }
-  setBrightness(0);  // Return to full brightness
-
-  // Test 6: Blanking test
-  Serial.println("Test 6: Blanking Test");
-  displayText("BLNK");
-  for (int i = 0; i < 5; i++) {
-    digitalWrite(BL_PIN, LOW);  // Blank display
-    delay(300);
-    digitalWrite(BL_PIN, HIGH);  // Unblank display
-    delay(300);
-  }
-
-  // Test 7: Individual character update
-  Serial.println("Test 7: Individual Character Update");
-  clearDisplay();
-  for (int pos = 0; pos < 4; pos++) {
-    writeCharacter(pos, 'A' + pos);
-    delay(500);
-  }
+  scrollText("Hello World! This is a scrolling message.");
   delay(1000);
 
-  // Test 8: Scrolling text demo
-  Serial.println("Test 8: Scrolling Text");
-  scrollText("HELLO WORLD! THIS IS A SCROLLING MESSAGE    ");
-
-  // Test 9: Character set demonstration
-  Serial.println("Test 9: Character Set Demo");
-  demonstrateCharacterSet();
-
-  // Test 10: Clear display
-  Serial.println("Test 10: Clear Display");
   clearDisplay();
-  delay(2000);
-
-  Serial.println("Test sequence complete. Restarting...\n");
   delay(1000);
 }
 
-// Function to write a single character to specified position
-void writeCharacter(uint8_t position, char character) {
-  // Set address
-  digitalWrite(A1_PIN, (position >> 1) & 1);
-  digitalWrite(A0_PIN, position & 1);
+// Function to find HDLX code for a given ASCII character
+uint8_t asciiToHDLX(char c) {
+  uint8_t charCode = (uint8_t)c;
 
-  // Set data (7-bit ASCII)
-  uint8_t ascii = (uint8_t)character;
-  digitalWrite(D0_PIN, ascii & 1);
-  digitalWrite(D1_PIN, (ascii >> 1) & 1);
-  digitalWrite(D2_PIN, (ascii >> 2) & 1);
-  digitalWrite(D3_PIN, (ascii >> 3) & 1);
-  digitalWrite(D4_PIN, (ascii >> 4) & 1);
-  digitalWrite(D5_PIN, (ascii >> 5) & 1);
-  digitalWrite(D6_PIN, (ascii >> 6) & 1);
+  // Search through the character mapping
+  for (int i = 0; i < CHAR_MAP_SIZE; i++) {
+    if (char_map[i].ascii_code == charCode) {
+      return char_map[i].hdlx_code;
+    }
+  }
+  // If character not found, return space
+  return 0x20;  // Space character
+}
 
-  // Write pulse (minimum 75ns according to datasheet)
-  digitalWrite(WR_PIN, LOW);
-  delayMicroseconds(1);  // Much longer than minimum for safety
-  digitalWrite(WR_PIN, HIGH);
+// Function to display temperature with proper degree symbol (4 chars max)
+void displayTemperature(int temp, bool celsius) {
+  char tempStr[5];  // 4 chars + null terminator
+
+  if (celsius) {
+    snprintf(tempStr, 5, "%dC", temp);
+  } else {
+    snprintf(tempStr, 5, "%dF", temp);
+  }
+
+  displayText(tempStr);
+
+  // Replace the 'C' or 'F' with the special degree symbol
+  int len = strlen(tempStr);
+  for (int i = 0; i < len; i++) {
+    if (tempStr[i] == 'C') {
+      displayCode(3 - i, 0x1B);  // °C symbol
+      break;
+    } else if (tempStr[i] == 'F') {
+      displayCode(3 - i, 0x1C);  // °F symbol
+      break;
+    }
+  }
+}
+
+// Function to display a character code at specific position
+void displayCode(uint8_t position, uint8_t code) {
+  // Set address (position 0-3)
+  digitalWrite(A1, (position >> 1) & 1);
+  digitalWrite(A0, position & 1);
+
+  // Set data (7-bit code)
+  digitalWrite(D0, code & 1);
+  digitalWrite(D1, (code >> 1) & 1);
+  digitalWrite(D2, (code >> 2) & 1);
+  digitalWrite(D3, (code >> 3) & 1);
+  digitalWrite(D4, (code >> 4) & 1);
+  digitalWrite(D5, (code >> 5) & 1);
+  digitalWrite(D6, (code >> 6) & 1);
+
+  // Write pulse
+  digitalWrite(WR, LOW);
+  delayMicroseconds(1);  // Minimum 75ns according to datasheet
+  digitalWrite(WR, HIGH);
   delayMicroseconds(1);
 }
 
-// Function to display a 4-character string (fixed addressing)
+// Enhanced writeCharacter function using the character mapping
+void writeCharacter(uint8_t position, char character) {
+  uint8_t hdlx_code = asciiToHDLX(character);
+  displayCode(position, hdlx_code);
+}
+
+// Enhanced displayText function with proper character mapping (4 characters max)
 void displayText(const char* text) {
+  int textLen = strlen(text);
+
+  // Display: 4 characters (positions 0-3)
   for (int i = 0; i < 4; i++) {
-    // Flip position: 0 = leftmost, 3 = rightmost
-    int pos = 3 - i;
-    if (i < strlen(text)) {
+    int pos = 3 - i;  // Flip position: 0 = leftmost, 3 = rightmost
+    if (i < textLen) {
       writeCharacter(pos, text[i]);
     } else {
       writeCharacter(pos, ' ');  // Fill with spaces
@@ -191,90 +300,79 @@ void displayText(const char* text) {
   }
 }
 
-// Function to clear the entire display
-void clearDisplay() {
-  digitalWrite(CLR_PIN, LOW);
-  delayMicroseconds(20);  // Hold for minimum 10μs
-  digitalWrite(CLR_PIN, HIGH);
-  delayMicroseconds(2);  // Wait for clear disable time
-}
-
-// Function to set brightness (0 = brightest, 7 = dimmest)
-// Note: This requires CU pin to be connected and controlled
-// For this demo, we'll simulate it by writing to control register
-void setBrightness(uint8_t level) {
-  // This is a simplified version - actual implementation would need
-  // CU pin control to write to control register
-  // For demo purposes, we'll use the BL pin for some dimming effect
-  if (level > 4) {
-    // Simulate dimming with PWM on BL pin for higher levels
-    int pwmValue = map(level, 5, 7, 200, 50);
-    analogWrite(BL_PIN, pwmValue);
+// Function to display special characters by name
+void displaySpecial(const char* specialName, uint8_t position) {
+  if (strcmp(specialName, "degree_c") == 0) {
+    displayCode(position, 0x1B);  // °C
+  } else if (strcmp(specialName, "degree_f") == 0) {
+    displayCode(position, 0x1C);  // °F
+  } else if (strcmp(specialName, "arrow_up") == 0) {
+    displayCode(position, 0x01);
+  } else if (strcmp(specialName, "arrow_right") == 0) {
+    displayCode(position, 0x02);
+  } else if (strcmp(specialName, "arrow_down") == 0) {
+    displayCode(position, 0x03);
+  } else if (strcmp(specialName, "arrow_left") == 0) {
+    displayCode(position, 0x04);
+  } else if (strcmp(specialName, "pound") == 0) {
+    displayCode(position, 0x1E);  // £
+  } else if (strcmp(specialName, "yen") == 0) {
+    displayCode(position, 0x1F);  // ¥
   } else {
-    digitalWrite(BL_PIN, HIGH);  // Full brightness for levels 0-4
+    displayCode(position, 0x20);  // Default to space
   }
 }
 
-// Function to scroll text across the display
+// Function to clear the display
+void clearDisplay() {
+  digitalWrite(CLR, LOW);
+  delayMicroseconds(20);  // Hold for minimum 10μs
+  digitalWrite(CLR, HIGH);
+  delayMicroseconds(2);  // Wait for clear disable time
+}
+
+// Enhanced scrollText function with proper character mapping (4 chars display)
 void scrollText(const char* text) {
   int textLen = strlen(text);
 
-  for (int startPos = 0; startPos < textLen; startPos++) {
+  // Add padding spaces to make scrolling smoother
+  char paddedText[textLen + 8];
+  strcpy(paddedText, "    ");  // 4 leading spaces
+  strcat(paddedText, text);
+  strcat(paddedText, "    ");  // 4 trailing spaces
+
+  int paddedLen = strlen(paddedText);
+
+  for (int startPos = 0; startPos < paddedLen - 3; startPos++) {
     char displayBuffer[5] = "    ";  // 4 chars + null terminator
 
     // Fill display buffer with 4 characters starting at startPos
     for (int i = 0; i < 4; i++) {
-      if (startPos + i < textLen) {
-        displayBuffer[i] = text[startPos + i];
+      if (startPos + i < paddedLen) {
+        displayBuffer[i] = paddedText[startPos + i];
       } else {
         displayBuffer[i] = ' ';
       }
     }
+    displayBuffer[4] = '\0';
 
     displayText(displayBuffer);
     delay(200);  // Scroll speed
-
-    // Break if we've scrolled past the end with spaces
-    if (startPos > textLen) break;
   }
 }
 
-// Function to demonstrate various characters from the ASCII set
-void demonstrateCharacterSet() {
-  // Numbers 0-9
-  Serial.println("Displaying numbers...");
-  for (char c = '0'; c <= '9'; c++) {
-    char temp[5];
-    sprintf(temp, "%c%c%c%c", c, c, c, c);
-    displayText(temp);
-    delay(500);
-  }
-
-  // Letters A-Z
-  Serial.println("Displaying uppercase letters...");
-  for (char c = 'A'; c <= 'Z'; c += 4) {
-    char temp[5];
-    sprintf(temp, "%c%c%c%c", c, c + 1, c + 2, c + 3);
-    displayText(temp);
-    delay(800);
-  }
-
-  // Letters a-z (if supported)
-  Serial.println("Displaying lowercase letters...");
-  for (char c = 'a'; c <= 'z'; c += 4) {
-    char temp[5];
-    sprintf(temp, "%c%c%c%c", c, c + 1, c + 2, c + 3);
-    displayText(temp);
-    delay(800);
-  }
-
-  // Special characters
-  Serial.println("Displaying special characters...");
-  const char* specials[] = { "!@#$", "%^&*", "()_+", "[]{}", "|\\:;", "\"'<>", ",.?/" };
-  int numSpecials = sizeof(specials) / sizeof(specials[0]);
-
-  for (int i = 0; i < numSpecials; i++) {
-    displayText(specials[i]);
-    delay(800);
+// Function to print available characters for reference
+void printCharacterMap() {
+  Serial.println("Available Characters:");
+  Serial.println("====================");
+  for (int i = 0; i < CHAR_MAP_SIZE; i++) {
+    Serial.print("ASCII Code: ");
+    Serial.print(char_map[i].ascii_code);
+    Serial.print(" -> 0x");
+    if (char_map[i].hdlx_code < 0x10) Serial.print("0");
+    Serial.print(char_map[i].hdlx_code, HEX);
+    Serial.print(" (");
+    Serial.print(char_map[i].description);
+    Serial.println(")");
   }
 }
