@@ -1,39 +1,41 @@
-String bejovoSzo = "";
+#define TX_PIN 21
+
+String textToDisplay = "";
 
 void setup() {
-  Serial.begin(9600);
+  Serial1.begin(9600, SERIAL_8N1, -1, TX_PIN);
   delay(2000);
-  vfdTeljesTorles();
-  vfdFrissites("RENDSZER KESZ");
+  vfdFullClear();
 }
 
 void loop() {
   while (Serial.available() > 0) {
-    char karakter = Serial.read();
-    if (karakter == '\n') {
-      vfdFrissites(bejovoSzo);
-      bejovoSzo = "";
+    char character = Serial.read();
+    if (character == '\n') {
+      vfdRefresh(textToDisplay);
+      textToDisplay = "";
     } else {
-      if (karakter != '\r') {
-        bejovoSzo += karakter;
+      if (character != '\r') {
+        textToDisplay += character;
       }
     }
   }
 }
 
-void vfdFrissites(String szoveg) {
-  if (szoveg.length() > 40) {
-    szoveg = szoveg.substring(0, 40);
+void vfdRefresh(String text) {
+  if (text.length() > 40) {
+    text = text.substring(0, 40);
   }
-  Serial.print(szoveg);
-  int maradek = 40 - szoveg.length();
-  for (int i = 0; i < maradek; i++) {
-    Serial.print(" ");
+
+  Serial1.print(text);
+  int remaining = 40 - text.length();
+  for (int i = 0; i < remaining; i++) {
+    Serial1.print(" ");
   }
 }
 
-void vfdTeljesTorles() {
+void vfdFullClear() {
   for (int i = 0; i < 80; i++) {
-    Serial.print(" ");
+    Serial1.print(" ");
   }
 }
