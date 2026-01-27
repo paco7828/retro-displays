@@ -1,0 +1,238 @@
+0x01 - underline - _
+0x10 - arrow head pointing right
+0x11 - arrow head pointing left
+0x12 - arrow pointing up and down
+0x13 - double exclamation mark - !!
+0x14 - pilcrow sign
+0x15 - slashed S
+0x16 - thick underline
+0x17 - tree
+0x18 - arrow pointing up
+0x19 - arrow pointing down
+0x1A - arrow pointing right
+0x1B - arrow pointing left
+0x1C - underline facing up
+0x1E - thick arrow head pointing up
+0x1F - thick arrow head pointing down
+0x21 - exclamation mark - !
+0x22 - double quotation mark - "
+0x23 - hashtag - #
+0x24 - circle with 4 pixels at the edges
+0x25 - percentage - %
+0x26 - and - &
+0x27 - single quotation mark - '
+0x28 - left parenthesis - (
+0x29 - right parenthesis - )
+0x2A - star - *
+0x2B - plus - +
+0x2C - comma - ,
+0x2D - hyphen - -
+0x2E - right dot
+0x2F - forward slash - /
+0x30 - zero - 0
+0x31 - one - 1
+0x32 - two - 2
+0x33 - three - 3
+0x34 - four - 4
+0x35 - five - 5
+0x36 - six - 6
+0x37 - seven - 7
+0x38 - eight - 8
+0x39 - nine - 9
+0x3A - colon - :
+0x3B - semicolon - ;
+0x3C - less than - <
+0x3D - equals - =
+0x3E - more than - >
+0x3F - question mark - ?
+0x40 - capital letter É - É
+0x41 - capital letter A - A
+0x42 - capital letter B - B
+0x43 - capital letter C - C
+0x44 - capital letter D - D
+0x45 - capital letter E - E
+0x46 - capital letter F - F
+0x47 - capital letter G - G
+0x48 - capital letter H - H
+0x49 - capital letter I - I
+0x4A - capital letter J - J
+0x4B - capital letter K - K
+0x4C - capital letter L - L
+0x4D - capital letter M - M
+0x4E - capital letter N - N
+0x4F - capital letter O - O
+0x50 - capital letter P - P
+0x51 - capital letter Q - Q
+0x52 - capital letter R - R
+0x53 - capital letter S - S
+0x54 - capital letter T - T
+0x55 - capital letter U - U
+0x56 - capital letter V - V
+0x57 - capital letter W - W
+0x58 - capital letter X - X
+0x59 - capital letter Y - Y
+0x5A - capital letter Z - Z
+0x5B - capital letter Ä - Ä
+0x5C - capital letter Ö - Ö
+0x5D - capital letter Ȧ - Ȧ
+0x5E - capital letter Ü - Ü
+0x5F - underline - _
+0x60 - lowercase letter é - é
+0x61 - lowercase letter a - a
+0x62 - lowercase letter b - b
+0x63 - lowercase letter c - c
+0x64 - lowercase letter d - d
+0x65 - lowercase letter e - e
+0x66 - lowercase letter f - f
+0x67 - lowercase letter g - g
+0x68 - lowercase letter h - h
+0x69 - lowercase letter i - i
+0x6A - lowercase letter j - j
+0x6B - lowercase letter k - k
+0x6C - lowercase letter l - l
+0x6D - lowercase letter m - m
+0x6E - lowercase letter n - n
+0x6F - lowercase letter o - o
+0x70 - lowercase letter p - p
+0x71 - lowercase letter q - q
+0x72 - lowercase letter r - r
+0x73 - lowercase letter s - s
+0x74 - lowercase letter t - t
+0x75 - lowercase letter u - u
+0x76 - lowercase letter v - v
+0x77 - lowercase letter w - w
+0x78 - lowercase letter x - x
+0x79 - lowercase letter y - y
+0x7A - lowercase letter z - z
+0x7B - lowercase letter ä - ä
+0x7C - lowercase letter ö - ö
+0x7D - lowercase letter â - â
+0x7E - lowercase letter ü - ü
+0x7F - arrow outlined pointing up
+0x80 - capital letter Ç - Ç
+0x81 - lowercase letter ü - ü
+0x82 - lowercase letter é - é
+0x83 - lowercase letter â - â
+0x84 - lowercase letter ä - ä
+0x85 - lowercase letter à - à
+0x86 - lowercase letter ȧ - ȧ
+0x87 - lowercase letter ç - ç
+0x88 - lowercase letter ê - ê
+0x89 - lowercase letter ë - ë
+0x8A - lowercase letter è - è
+0x8B - lowercase letter ï - ï
+0x8C - lowercase letter î - î
+0x8D - lowercase letter ì - ì
+0x8E - capital letter Ä - Ä
+0x8F - capital letter Ȧ - Ȧ
+0x90 - capital letter É - É
+0x91 - strange star
+0x92 - capital letter Æ - Æ
+0x93 - lowercase letter ô - ô
+0x94 - lowercase letter ö - ö
+0x95 - lowercase letter ò - ò
+0x96 - lowercase letter û - û
+0x97 - lowercase letter ù - ù
+0x98 - lowercase letter ÿ - ÿ
+0x99 - capital letter Ö - Ö
+0x9A - capital letter Ü - Ü
+0x9B - cent - ¢
+0x9C - pound - £
+0x9D - yen - ¥
+0x9E - rupee - ₨
+0x9F - aruban or dutch guilder - ƒ
+0xA0 - lowercase letter á - á
+0xA1 - lowercase letter í - í
+0xA2 - lowercase letter ó - ó
+0xA3 - lowercase letter ú - ú
+0xA4 - lowercase letter ñ - ñ
+0xA5 - capital letter - Ñ - Ñ
+0xA6 - lowercase letter a̱ - a̱
+0xA7 - lowercase letter o̱ - o̱
+0xA8 - upside down question mark - ¿
+0xA9 - L facing left down
+0xAA - L facing right down
+0xAB - strange tree
+0xAC - strange half tree
+0xAD - capital letter I - I
+0xAE - double arrow pointing left
+0xAF - double arrow pointing right
+0xB0 - double-triple pattern
+0xB1 - triple-double pattern
+0xB2 - full block
+0xB3 - center column
+0xB4 - center column with left row
+0xB5 - center column with double left row
+0xB6 - double column with left row
+0xB7 - center row with double column facing down
+0xB8 - vertically mirrored letter F
+0xB9 - tube (entries=up, down, left)
+0xBA - double columns
+0xBB - tube (entries=down, left)
+0xBC - tube (entries=up, left)
+0xBD - center row with double column facing up
+0xBE - vertically and horizontally mirrored letter F
+0xBF - closed corner (left down)
+0xC0 - closed corner (right up)
+0xC1 - closed corner (right up, left up)
+0xC2 - closed corner (right down, left down)
+0xC3 - closed corner (right up, right down)
+0xC4 - hyphen
+0xC5 - big plus sign
+0xC6 - closed corner (right up, right down, right center)
+0xC7 - double column with right row
+0xC8 - tube (entries=up, right)
+0xC9 - tube (entries=right, down)
+0xCA - tube (entries=up, right, left)
+0xCB - tube (entries=right, down, left)
+0xCC - tube (entries=up, right, down)
+0xCD - equals - =
+0xCE - tube (entries=up, right, down, left)
+0xCF - double row with upwards column
+0xD0 - row with double upwards columns
+0xD1 - double row with downwards column
+0xD2 - row with double downwards columns
+0xD3 - tube (entries=top)
+0xD4 - horizontally mirrored letter F
+0xD5 - capital and lowercase F 
+0xD6 - horizontally mirrored capital and lowercase U
+0xD7 - capital and lowercase H
+0xD8 - double cross
+0xD9 - closed corner (left up)
+0xDA - closed corner (right up)
+0xDB - full block
+0xDC - half block bottom
+0xDD - half block left
+0xDE - half block right
+0xDF - half block up
+0xE0 - alpha - α
+0xE1 - beta - β
+0xE2 - gamma - Γ
+0xE3 - lowercase pi - π
+0xE4 - capital sigma - Σ
+0xE5 - lowercase sigma - σ
+0xE6 - lowercase mu - μ
+0xE7 - lowercase tau - τ
+0xE8 - uppercase phi - Φ
+0xE9 - lowercase theta - θ
+0xEA - capital omega - Ω
+0xEB - lowercase delta - δ
+0xEC - small double star - **
+0xED - lowercase phi - φ
+0xEE - lowercase epsilon - ε
+0xEF - uppercase pi - Π
+0xF0 - uppercase xi - Ξ
+0xF1 - plus minus - ±
+0xF2 - greater than or equal - ≥
+0xF3 - lower than or equal - ≤
+0xF4 - horizontally and vertically mirrored capital and lowercase letter J
+0xF5 - capital and lowercase letter J
+0xF6 - division - ÷
+0xF7 - approximately equal to - ≈
+0xF8 - degree - °
+0xF9 - decimal point
+0xFA - small decimal point
+0xFB - handwritten capitalletter J
+0xFC - lowercase eta - η
+0xFD - superscript 2 - ²
+0xFE - decimal comma
