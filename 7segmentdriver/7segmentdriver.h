@@ -84,6 +84,14 @@ public:
     }
   }
 
+  void decimalOn() {
+    segmentOn(this->segmentPins[7]);
+  }
+
+  void decimalOff() {
+    segmentOff(this->segmentPins[7]);
+  }
+
   void snakeLoading(int delayBetween = 100) {
     for (uint8_t i = 0; i < snakeLoadingFramesLength; i++) {
       allOff();
