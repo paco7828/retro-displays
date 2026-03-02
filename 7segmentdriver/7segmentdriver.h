@@ -17,6 +17,40 @@ private:
     0b1101111   // 9
   };
 
+  const uint8_t letters[26] = {
+    0b1110111,  // A  - a,b,c,e,f,g
+    0b1111100,  // b  - c,d,e,f,g
+    0b0111001,  // C  - a,d,e,f
+    0b1011110,  // d  - b,c,d,e,g
+    0b1111001,  // E  - a,d,e,f,g
+    0b1110001,  // F  - a,e,f,g
+    0b1111101,  // G  - a,c,d,e,f,g
+    0b1110100,  // h  - c,e,f,g
+    0b0000100,  // i  - c
+    0b0011110,  // J  - b,c,d,e
+    0b1110110,  // k  - b,c,e,f,g
+    0b0111000,  // L  - d,e,f
+    0b0110110,  // m  - b,c,e,f
+    0b1010100,  // n  - c,e,g
+    0b1011100,  // o  - c,d,e,g
+    0b1110011,  // P  - a,b,e,f,g
+    0b1100111,  // q  - a,b,c,f,g
+    0b1010000,  // r  - e,g
+    0b1101101,  // S  - a,c,d,f,g
+    0b1111000,  // t  - d,e,f,g
+    0b0111110,  // U  - b,c,d,e,f
+    0b0011100,  // v  - c,d,e
+    0b0011110,  // w  - b,c,d,e
+    0b1110110,  // X  - b,c,e,f,g
+    0b1101110,  // Y  - b,c,d,f,g
+    0b1011011   // Z  - a,b,d,e,g
+  };
+
+  static const uint8_t CODE_UNDERSCORE = 0b0001000;  // d
+  static const uint8_t CODE_DASH = 0b1000000;        // g
+  static const uint8_t CODE_EQUALS = 0b1001000;      // d,g
+  static const uint8_t CODE_DEGREE = 0b1100011;      // a,b,f,g
+
   // Animations frames
   static constexpr uint8_t circularLoadingFrames[] = { 1, 1, 1, 1, 1, 1, 0, 0 };
   static constexpr uint8_t snakeLoadingFrames[] = { 0, 5, 6, 2, 3, 4, 6, 1 };
@@ -46,6 +80,7 @@ public:
     }
     allOff();
     this->testSequence();
+    allOff();
   }
 
   void displayCode(uint8_t code, bool decimalActive = false, int delayBetween = 0) {
@@ -72,6 +107,37 @@ public:
     displayCode(digits[number], decimalActive, delayBetween);
   }
 
+  // --- Special characters ---
+
+  void showUnderscore(bool decimalActive = false) {
+    displayCode(CODE_UNDERSCORE, decimalActive);
+  }
+
+  void showDash(bool decimalActive = false) {
+    displayCode(CODE_DASH, decimalActive);
+  }
+
+  void showEquals(bool decimalActive = false) {
+    displayCode(CODE_EQUALS, decimalActive);
+  }
+
+  void showDegree(bool decimalActive = false) {
+    displayCode(CODE_DEGREE, decimalActive);
+  }
+
+  // --- Letters ---
+
+  bool showLetter(char letter, bool decimalActive = false) {
+    char upper = (letter >= 'a' && letter <= 'z') ? letter - 32 : letter;
+    if (upper >= 'A' && upper <= 'Z') {
+      displayCode(letters[upper - 'A'], decimalActive);
+      return true;
+    }
+    // Unsupported char
+    allOff();
+    return false;
+  }
+
   void allOff() {
     for (int i = 0; i < numberOfSegments; i++) {
       this->segmentOff(segmentPins[i]);
@@ -91,6 +157,8 @@ public:
   void decimalOff() {
     segmentOff(this->segmentPins[7]);
   }
+
+  // --- Animations ---
 
   void snakeLoading(int delayBetween = 100) {
     for (uint8_t i = 0; i < snakeLoadingFramesLength; i++) {
