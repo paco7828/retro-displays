@@ -1,0 +1,6 @@
+Pin 1 - VI -> Potmeter middle pin
+Pin 2 - VS -> 12V VCC
+Pin 3 - GND -> GND
+Pin 4 - GND -> GND
+Potmeter right pin -> GND
+Potmeter left pin -> 5V VCC
