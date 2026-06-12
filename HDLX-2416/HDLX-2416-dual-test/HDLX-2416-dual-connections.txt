@@ -1,0 +1,23 @@
+HDLX-2416 (1) -> MCU GPIO:
+1 CE1# -> 20
+2 CE2# -> GND
+3 CLR# -> IO0 (shared)
+4 CUE -> NC
+5 CU# -> NC
+6 WR# -> IO1 (shared)
+7 A1 -> IO3 (shared)
+8 A0 -> IO2 (shared)
+9 VCC -> 5V
+10 GND -> GND
+11 D0 -> IO4 (shared)
+12 D1 -> IO5 (shared)
+13 D2 -> IO6 (shared)
+14 D3 -> IO7 (shared)
+15 D6 -> IO10 (shared)
+16 D5 -> IO9 (shared)
+17 D4 -> IO8 (shared)
+18 BL# -> 5V
+
+HDLX-2416 (1) -> MCU GPIO:
+1 CE1# -> 21
+(same connections)

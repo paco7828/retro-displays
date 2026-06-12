@@ -1,4 +1,4 @@
-HDLX-2416 -> MCU:
+HDLX-2416 -> MCU GPIO:
 1 CE1# -> GND
 2 CE2# -> GND
 3 CLR# -> IO0
@@ -13,7 +13,7 @@ HDLX-2416 -> MCU:
 12 D1 -> IO5
 13 D2 -> IO6
 14 D3 -> IO7
-15 D6 -> IO8
+15 D6 -> IO10
 16 D5 -> IO9
-17 D4 -> IO10
-18 BL# -> IO20
+17 D4 -> IO8
+18 BL# -> 5V
